@@ -1,38 +1,47 @@
 package org.github.termomix.configs;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 
 @Configuration
+@Getter
 @Slf4j
 public class SeleniumConfig {
     private static final String CHROME_DRIVER_EXE = "chromedriver.exe";
     private static final String WEBDRIVER_CHROME_DRIVER_PROPERTY = "webdriver.chrome.driver";
 
+    @Value("${site.url}")
+    private String siteUrl;
+    private static final String BUTTON_COOKIE = "onetrust-accept-btn-handler";
+
     private static final String[] PATHS = {"", "bin/", "target/classes"};
+
+    private ChromeDriver driver;
 
     public SeleniumConfig() {
         log.info("[SeleniumConfig] Trying to find local chrome webdriver");
         findDriverInLocalWorkdir();
+        initDriver();
     }
 
-    public ChromeDriver createDriver() {
-        ChromeOptions browserOptions = new ChromeOptions();
-        browserOptions.addArguments("--headless");
-        browserOptions.addArguments("--disable-gpu");
-        browserOptions.addArguments("disable-infobars");
-        browserOptions.addArguments("--disable-extensions");
-        browserOptions.addArguments("window-size=1200x600");
-        browserOptions.addArguments("--no-sandbox");
-        browserOptions.addArguments("--remote-allow-origins=*");
-        browserOptions.addArguments("--incognito");
+    private void initDriver() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--incognito");
+        options.addArguments("--disable-gpu");
+        options.addArguments("disable-infobars");
+        options.addArguments("--disable-extensions");
+        options.addArguments("window-size=1200x600");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 
-        browserOptions.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
-        return new ChromeDriver(browserOptions);
+        driver = new ChromeDriver(options);
     }
 
     private void findDriverInLocalWorkdir() {

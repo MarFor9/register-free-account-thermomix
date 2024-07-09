@@ -31,33 +31,27 @@ public class ScrapperServiceImpl implements ScrapperService {
     public static final String FIRST_NAME_INPUT = "gigya-textbox-30426711382413052";
     public static final String LAST_NAME_INPUT = "gigya-textbox-67439711721643270";
     private static final String BUTTON_COOKIE = "onetrust-accept-btn-handler";
-    private final SeleniumConfig seleniumConfig;
+    public static final String CONTAIN_LOGOUT = "//a[contains(text(), 'Wyloguj się') and contains(@class, 'js-logout')]";
 
     @Value("${site.url}")
     private String siteUrl;
 
     private final Faker faker = new Faker();
     private final EmailService emailService;
+    private final ChromeDriver driver;
 
     public ScrapperServiceImpl(SeleniumConfig seleniumConfig, EmailService emailService) {
-        this.seleniumConfig = seleniumConfig;
+        this.driver = seleniumConfig.getDriver();
         this.emailService = emailService;
     }
 
     @SneakyThrows
     @Override
     public User scrap() {
-        ChromeDriver driver = seleniumConfig.createDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
         driver.get(siteUrl);
 
-        log.info("[ScrapperServiceImpl] start scrapping, try to find accept cookies button by id: " + BUTTON_COOKIE);
-        WebElement acceptCookiesButton = new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.presenceOfElementLocated(By.id(BUTTON_COOKIE)));
-
-        Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] click: " + BUTTON_COOKIE);
-        acceptCookiesButton.click();
+        acceptCookies();
 
         Thread.sleep(500);
         log.info("[ScrapperServiceImpl] try to find register button by cssSelector: " + REGISTER_BUTTON);
@@ -115,9 +109,30 @@ public class ScrapperServiceImpl implements ScrapperService {
         log.info("[ScrapperServiceImpl] try to find confirm code button by xpath: " + SPAN_CONTAINS_TEXT_CONFIRM_CODE);
         WebElement confirmCode = driver.findElement(By.xpath(SPAN_CONTAINS_TEXT_CONFIRM_CODE));
         confirmCode.click();
-        log.info("[ScrapperServiceImpl] Finish scraping and fill the form");
 
-        driver.quit();
-        return new User(email, PASSWORD_RODZINKA_PL_123);
+        log.info("[ScrapperServiceImpl] try to find logout button by xpath: {}", CONTAIN_LOGOUT);
+        Thread.sleep(2000);
+        WebElement logoutLink = driver.findElement(By.xpath(CONTAIN_LOGOUT));
+        logoutLink.click();
+
+        User user = new User(email, PASSWORD_RODZINKA_PL_123);
+        log.info("user info: {}", user);
+        return user;
+    }
+
+    private void acceptCookies() {
+        try {
+            log.info("[SeleniumConfig] Trying to find and accept cookies");
+            log.info("[SeleniumConfig] start scrapping, try to find accept cookies button by id: " + BUTTON_COOKIE);
+            WebElement acceptCookiesButton = new WebDriverWait(driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.presenceOfElementLocated(By.id(BUTTON_COOKIE)));
+
+            Thread.sleep(500);
+            log.info("[SeleniumConfig] click: " + BUTTON_COOKIE);
+            acceptCookiesButton.click();
+            log.info("[SeleniumConfig] Cookies accepted");
+        } catch (Exception e) {
+            log.error("Failed to accept cookies", e);
+        }
     }
 }
