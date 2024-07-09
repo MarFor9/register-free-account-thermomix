@@ -47,7 +47,7 @@ public class ScrapperServiceImpl implements ScrapperService {
     @SneakyThrows
     @Override
     public User scrap() {
-        ChromeDriver driver = seleniumConfig.getDriver();
+        ChromeDriver driver = seleniumConfig.createDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
         driver.get(siteUrl);
 
@@ -117,6 +117,7 @@ public class ScrapperServiceImpl implements ScrapperService {
         confirmCode.click();
         log.info("[ScrapperServiceImpl] Finish scraping and fill the form");
 
+        driver.quit();
         return new User(email, PASSWORD_RODZINKA_PL_123);
     }
 }
