@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
@@ -15,11 +14,7 @@ import java.io.File;
 public class SeleniumConfig {
     private static final String CHROME_DRIVER_EXE = "chromedriver.exe";
     private static final String WEBDRIVER_CHROME_DRIVER_PROPERTY = "webdriver.chrome.driver";
-
-    @Value("${site.url}")
-    private String siteUrl;
     private static final String BUTTON_COOKIE = "onetrust-accept-btn-handler";
-
     private static final String[] PATHS = {"", "bin/", "target/classes"};
 
     private ChromeDriver driver;
