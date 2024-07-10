@@ -1,4 +1,4 @@
-# Create a New Free Account
+# Create a New Free Account for Cookidoo and Vorwerk
 
 Scrape the registration page, fill out the form, submit it, and confirm the account using MailSlurp.
 
@@ -31,7 +31,8 @@ Scrape the registration page, fill out the form, submit it, and confirm the acco
 
    Add to application.properties:
    ```sh
-   site.url=https://www.vorwerk.com/pl/pl/s/shop/login
+   vorwerk.site.url=https://www.vorwerk.com/pl/pl/s/shop/login
+   cookido.site.url=https://cookidoo.pl/foundation/pl
 
 4. **Build and run**
    ```sh

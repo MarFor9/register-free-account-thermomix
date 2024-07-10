@@ -1,15 +1,18 @@
-package org.github.termomix.services;
+package org.github.termomix.services.vorwerk;
 
 import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.github.termomix.configs.SeleniumConfig;
 import org.github.termomix.model.User;
+import org.github.termomix.services.EmailService;
+import org.github.termomix.services.ScrapperService;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,7 @@ import java.time.Duration;
 
 @Service
 @Slf4j
-public class ScrapperServiceImpl implements ScrapperService {
+public class VorwerkScrapperServiceImpl implements ScrapperService {
     public static final String SPAN_CONTAINS_TEXT_CONFIRM_CODE = "//span[contains(text(), 'Potwierdź kod')]";
     public static final String INPUT_CODE_CONFIRMATION = "label#gigya-textbox-code_label input";
     public static final String SPAN_REGISTER_ACCUNT = "//span[contains(text(), 'Zarejestruj konto tutaj')]";
@@ -33,14 +36,14 @@ public class ScrapperServiceImpl implements ScrapperService {
     private static final String BUTTON_COOKIE = "onetrust-accept-btn-handler";
     public static final String CONTAIN_LOGOUT = "//a[contains(text(), 'Wyloguj się') and contains(@class, 'js-logout')]";
 
-    @Value("${site.url}")
+    @Value("${vorwerk.site.url}")
     private String siteUrl;
 
     private final Faker faker = new Faker();
     private final EmailService emailService;
     private final ChromeDriver driver;
 
-    public ScrapperServiceImpl(SeleniumConfig seleniumConfig, EmailService emailService) {
+    public VorwerkScrapperServiceImpl(SeleniumConfig seleniumConfig, @Qualifier("vorwerkEmailServiceImpl") EmailService emailService) {
         this.driver = seleniumConfig.getDriver();
         this.emailService = emailService;
     }
@@ -59,58 +62,58 @@ public class ScrapperServiceImpl implements ScrapperService {
         registerButton.click();
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find email input by id: " + EMAIL_INPUT);
+        log.info("[VorwerkScrapperServiceImpl] try to find email input by id: " + EMAIL_INPUT);
         WebElement emailInput = driver.findElement(By.id(EMAIL_INPUT));
         String email = emailService.getEmail();
         emailInput.sendKeys(email);
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find password input by id: " + PASSWORD_INPUT);
+        log.info("[VorwerkScrapperServiceImpl] try to find password input by id: " + PASSWORD_INPUT);
         WebElement passwordInput = driver.findElement(By.id(PASSWORD_INPUT));
         passwordInput.sendKeys(PASSWORD_RODZINKA_PL_123);
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find password retype input by id: " + PASSWORD_RETYPE_INPUT);
+        log.info("[VorwerkScrapperServiceImpl] try to find password retype input by id: " + PASSWORD_RETYPE_INPUT);
         WebElement passwordRetypeInput = driver.findElement(By.id(PASSWORD_RETYPE_INPUT));
         passwordRetypeInput.sendKeys(PASSWORD_RODZINKA_PL_123);
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find gender radio button by xpath: " + GENDER_RADIO_BUTTON_MEN);
+        log.info("[VorwerkScrapperServiceImpl] try to find gender radio button by xpath: " + GENDER_RADIO_BUTTON_MEN);
         WebElement genderSpan = driver.findElement(By.xpath(GENDER_RADIO_BUTTON_MEN));
         genderSpan.click();
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find first name input by id: " + FIRST_NAME_INPUT);
+        log.info("[VorwerkScrapperServiceImpl] try to find first name input by id: " + FIRST_NAME_INPUT);
         WebElement firstNameInput = driver.findElement(By.id(FIRST_NAME_INPUT));
         firstNameInput.sendKeys(faker.name().firstName());
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find last name input by id: " + LAST_NAME_INPUT);
+        log.info("[VorwerkScrapperServiceImpl] try to find last name input by id: " + LAST_NAME_INPUT);
         WebElement lastNameInput = driver.findElement(By.id(LAST_NAME_INPUT));
         lastNameInput.sendKeys(faker.name().lastName());
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find politics check button by xpath: " + SPAN_CONTAINS_TEXT_I_CONSENT_TO);
+        log.info("[VorwerkScrapperServiceImpl] try to find politics check button by xpath: " + SPAN_CONTAINS_TEXT_I_CONSENT_TO);
         WebElement consentSpan = driver.findElement(By.xpath(SPAN_CONTAINS_TEXT_I_CONSENT_TO));
         consentSpan.click();
 
         Thread.sleep(500);
-        log.info("[ScrapperServiceImpl] try to find register account button by xpath: " + SPAN_REGISTER_ACCUNT);
+        log.info("[VorwerkScrapperServiceImpl] try to find register account button by xpath: " + SPAN_REGISTER_ACCUNT);
         WebElement registerAccountButton = driver.findElement(By.xpath(SPAN_REGISTER_ACCUNT));
         registerAccountButton.click();
 
         Thread.sleep(3000);
-        log.info("[ScrapperServiceImpl] try to find confirm code input by className: " + INPUT_CODE_CONFIRMATION);
-        String emailConfirmationCode = emailService.getConfirmationCode();
+        log.info("[VorwerkScrapperServiceImpl] try to find confirm code input by className: " + INPUT_CODE_CONFIRMATION);
+        String emailConfirmationCode = emailService.getResponse();
         WebElement codeInputField = driver.findElement(By.cssSelector(INPUT_CODE_CONFIRMATION));
         codeInputField.sendKeys(emailConfirmationCode);
 
         Thread.sleep(100);
-        log.info("[ScrapperServiceImpl] try to find confirm code button by xpath: " + SPAN_CONTAINS_TEXT_CONFIRM_CODE);
+        log.info("[VorwerkScrapperServiceImpl] try to find confirm code button by xpath: " + SPAN_CONTAINS_TEXT_CONFIRM_CODE);
         WebElement confirmCode = driver.findElement(By.xpath(SPAN_CONTAINS_TEXT_CONFIRM_CODE));
         confirmCode.click();
 
-        log.info("[ScrapperServiceImpl] try to find logout button by xpath: {}", CONTAIN_LOGOUT);
+        log.info("[VorwerkScrapperServiceImpl] try to find logout button by xpath: {}", CONTAIN_LOGOUT);
         Thread.sleep(2000);
         WebElement logoutLink = driver.findElement(By.xpath(CONTAIN_LOGOUT));
         logoutLink.click();
