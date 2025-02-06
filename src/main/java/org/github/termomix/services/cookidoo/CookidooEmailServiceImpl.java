@@ -58,7 +58,7 @@ public class CookidooEmailServiceImpl implements EmailService {
 
     @Override
     public String getResponse() {
-        long timeout = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        long timeout = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(500);
         WaitForControllerApi waitForControllerApi = new WaitForControllerApi(client);
         boolean unreadOnly = true;
         Email email;
@@ -75,9 +75,11 @@ public class CookidooEmailServiceImpl implements EmailService {
 
     private String extractFinalConfirmationLink(Email email) {
         Document doc = Jsoup.parse(Objects.requireNonNull(email.getBody()));
-        Element linkElement = doc.select("a[id=registration]").first();
+        Element linkElement = doc.select("a:contains(Aktywuj konto)").first();
         if (linkElement != null) {
-            return linkElement.attr("href");
+            var activationLink = linkElement.attr("href");
+            log.info("Activation Link: {}", activationLink);
+            return activationLink;
         }
         throw new RuntimeException("Confirmation link not found in email");
     }

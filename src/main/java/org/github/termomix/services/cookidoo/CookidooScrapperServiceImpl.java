@@ -20,7 +20,7 @@ import java.time.Duration;
 public class CookidooScrapperServiceImpl implements ScrapperService {
 
     public static final String NAV_LINK_REGISTER = "//a[contains(text(), 'Zarejestruj konto') and contains(@class, 'core-nav__link')]";
-    public static final String EMAIL_ID = "uEmail";
+    public static final String EMAIL_ID = "email";
     public static final String PASSWORD_ID = "password";
     public static final String PASSWORD_RODZINKA_PL_2024 = "rodzinkaPL2024!";
     public static final String ACCEPT_TOS_ID = "acceptTos1";
@@ -52,6 +52,7 @@ public class CookidooScrapperServiceImpl implements ScrapperService {
         log.info("[CookidooEmailServiceImpl] try to find email input by id: " + EMAIL_ID);
         WebElement emailField = driver.findElement(By.id(EMAIL_ID));
         String email = emailService.getEmail();
+        log.info("email: {}", email);
         emailField.sendKeys(email);
 
         Thread.sleep(500);
@@ -61,12 +62,15 @@ public class CookidooScrapperServiceImpl implements ScrapperService {
 
         Thread.sleep(500);
         log.info("[CookidooEmailServiceImpl] try to find accept tos radio button by id: " + ACCEPT_TOS_ID);
-        WebElement genderSpan = driver.findElement(By.id(ACCEPT_TOS_ID));
+//        WebElement genderSpan = driver.findElement(By.id(ACCEPT_TOS_ID));
+        WebElement genderSpan = driver.findElement(By.xpath("//core-checkbox[@aria-labelledby='consent-label']"));
+
         genderSpan.click();
 
         Thread.sleep(500);
         log.info("[CookidooEmailServiceImpl] try to find register account button by cssSelector: " + CSS_CLASS_REGISTER_YOURSELF);
-        WebElement registerAccountButton = driver.findElement(By.xpath(CSS_CLASS_REGISTER_YOURSELF));
+//        WebElement registerAccountButton = driver.findElement(By.xpath(CSS_CLASS_REGISTER_YOURSELF));
+        WebElement registerAccountButton = driver.findElement(By.xpath("//button[contains(text(), 'Zarejestruj się')]"));
         registerAccountButton.click();
 
         handleConfirmationAccount();
